@@ -1,0 +1,94 @@
+var infotext = '<B>晨豐科技股份有限公司</B><br>802高雄市苓雅區大順三路183號';         //地標名稱及訊息視窗內容
+
+        var markerPoint = new TGOS.TGPoint(180765.959910547,2503962.03002203);    
+
+
+var Query = new TGOS.TGAttriQuery();  //建立屬性查詢物件, 準備執行屬性查詢時使用
+
+function search() {
+
+var CN = document.getElementById("CityName").value; 
+
+//取得使用者輸入的縣市名稱
+
+var TN = document.getElementById("TownName").value; 
+
+//取得使用者輸入的鄉鎮市區名稱
+
+var KW = document.getElementById("Keyword").value; 
+
+//取得使用者輸入的關鍵字
+
+var queryRequst = {  //設定屬性查詢參數
+
+county: CN,
+
+town: TN,
+
+keyword: KW
+
+};
+
+ 
+
+Query.identify(TGOS.TGMapServiceId.SHELTERS, TGOS.TGMapId.SHELTERS,
+
+queryRequst,  TGOS.TGCoordSys.EPSG3826, function(result, status){
+
+//使用方法identify進行屬性查詢, 輸入參數包含欲查詢的服務、欲查詢的圖層、
+
+//查詢參數、坐標系統及查詢後的函式, result及status分別代表查詢結果及查詢狀態
+
+if (status == TGOS.TGQueryStatus.ZERO_RESULTS) {  //判斷查詢結果是否為查無結果
+
+txtBox.innerHTML = '查無結果';
+
+return;
+
+} else {  //若查詢產生結果, 則執行以下函式
+
+var attris = result.fieldAttr;  //取得圖徵屬性
+
+for (i = 0; i < attris.length; i++) {
+
+//使用迴圈將符合查詢條件的結果全部取出
+
+var str = 'ID: ' + attris[i][0] + '; Name: ' + attris[i][1] + '; Address: '
+
++ attris[i][4] + " " +'<input type="button" value="定位" onclick="locate('
+
++ attris[i][13] + ',' + attris[i][14] + ');">' + '<br>';
+
+//將結果圖徵的部份屬性取出, 組合成一個html語法的字串,
+
+//另外每條結果後方全部都加上一顆按鈕,
+
+//按下後執行function locate(), 並將坐標資訊傳到locate()使用.
+
+ 
+
+strs += str;  //將每次迴圈的字串結果加在一起
+
+ 
+
+var tip = attris[i][1]; 
+
+//取出查詢結果的各個圖徵名稱, 準備作為標記點的顯示文字
+
+var marker = new TGOS.TGMarker(pMap, new TGOS.TGPoint(attris[i][13], attris[i][14]), tip);
+
+//將查詢結果作成標記點顯示在圖面上
+
+markers.push(marker);  //將所有標記點加入陣列markers
+
+}
+
+}
+
+txtBox.innerHTML = strs;  //將查詢後的文字結果寫入到空白DIV內
+
+});
+
+}  
+
+
